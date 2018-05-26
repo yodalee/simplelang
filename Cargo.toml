@@ -1,0 +1,6 @@
+[package]
+name = "proglang"
+version = "0.1.0"
+authors = ["yodalee <lc85301@gmail.com>"]
+
+[dependencies]
