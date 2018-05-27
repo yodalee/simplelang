@@ -17,8 +17,14 @@ impl Evaluate for Node {
             Node::Multiply(ref l, ref r) => {
                 Node::number(l.evaluate(environment).value() * r.evaluate(environment).value())
             }
-            Node::LessThan(ref l, ref r) => {
+            Node::LT(ref l, ref r) => {
                 Node::boolean(l.evaluate(environment).value() < r.evaluate(environment).value())
+            }
+            Node::EQ(ref l, ref r) => {
+                Node::boolean(l.evaluate(environment).value() == r.evaluate(environment).value())
+            }
+            Node::GT(ref l, ref r) => {
+                Node::lt(r.clone(), l.clone()).evaluate(environment)
             }
             Node::Variable(ref name) => {
                 environment.get(&name)

@@ -34,15 +34,25 @@ impl Reduce for Node {
                     Node::number(l.value() * r.value())
                 }
             }
-            Node::LessThan(ref l, ref r) => {
+            Node::LT(ref l, ref r) => {
                 if l.reducible() {
-                    Node::lessthan(l.reduce(environment), r.clone())
+                    Node::lt(l.reduce(environment), r.clone())
                 } else if r.reducible() {
-                    Node::lessthan(l.clone(), r.reduce(environment))
+                    Node::lt(l.clone(), r.reduce(environment))
                 } else {
                     Node::boolean(l.value() < r.value())
                 }
             }
+            Node::EQ(ref l, ref r) => {
+                if l.reducible() {
+                    Node::eq(l.reduce(environment), r.clone())
+                } else if r.reducible() {
+                    Node::eq(l.clone(), r.reduce(environment))
+                } else {
+                    Node::boolean(l.value() == r.value())
+                }
+            }
+            Node::GT(ref l, ref r) => { Node::lt(r.clone(), l.clone()) }
             Node::Variable(ref name) => {
                 environment.get(&name)
             }

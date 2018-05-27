@@ -8,7 +8,9 @@ pub enum Node {
     Add(Box<Node>, Box<Node>),
     Multiply(Box<Node>, Box<Node>),
     Boolean(bool),
-    LessThan(Box<Node>, Box<Node>),
+    LT(Box<Node>, Box<Node>),
+    EQ(Box<Node>, Box<Node>),
+    GT(Box<Node>, Box<Node>),
     Variable(String),
     DoNothing,
     Assign(String, Box<Node>),
@@ -22,7 +24,9 @@ impl Node {
     pub fn add(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::Add(left, right)) }
     pub fn multiply(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::Multiply(left, right)) }
     pub fn boolean(value: bool) -> Box<Node> { Box::new(Node::Boolean(value)) }
-    pub fn lessthan(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::LessThan(left, right)) }
+    pub fn lt(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::LT(left, right)) }
+    pub fn eq(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::EQ(left, right)) }
+    pub fn gt(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::GT(left, right)) }
     pub fn variable(name: &str) -> Box<Node> { Box::new(Node::Variable(name.to_string())) }
     pub fn donothing() -> Box<Node> { Box::new(Node::DoNothing) }
     pub fn assign(name: &str, expr: Box<Node>) -> Box<Node> { Box::new(Node::Assign(name.to_string(), expr)) }
@@ -52,7 +56,9 @@ impl Display for Node {
             Node::Add(ref l, ref r) => write!(f, "{0} + {1}", l, r),
             Node::Multiply(ref l, ref r) => write!(f, "{0} * {1}", l, r),
             Node::Boolean(value) => write!(f, "{}", value),
-            Node::LessThan(ref l, ref r) => write!(f, "{0} < {1}", l, r),
+            Node::LT(ref l, ref r) => write!(f, "{0} < {1}", l, r),
+            Node::EQ(ref l, ref r) => write!(f, "{0} = {1}", l, r),
+            Node::GT(ref l, ref r) => write!(f, "{0} > {1}", l, r),
             Node::Variable(ref name) => write!(f, "{}", name),
             Node::DoNothing => write!(f, "do-nothing"),
             Node::Assign(ref name, ref expr) => write!(f, "{0} = {1}", name, expr),

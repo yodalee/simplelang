@@ -1,9 +1,6 @@
 pub mod syntax;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub mod reduce;
+pub mod evaluate;
+pub mod environment;
+pub mod machine;
+pub mod denotational;

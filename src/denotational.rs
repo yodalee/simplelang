@@ -12,7 +12,9 @@ impl Denotational for Node {
             Node::Variable(ref name) => format!("-> e {{ e[:{}] }}", name),
             Node::Add(ref l, ref r) => format!("-> e {{ ({}).call(e) + ({}).call(e) }}", l.to_ruby(), r.to_ruby()),
             Node::Multiply(ref l, ref r) => format!("-> e {{ ({}).call(e) * ({}).call(e) }}", l.to_ruby(), r.to_ruby()),
-            Node::LessThan(ref l, ref r) => format!("-> e {{ ({}).call(e) < ({}).call(e) }}", l.to_ruby(), r.to_ruby()),
+            Node::LT(ref l, ref r) => format!("-> e {{ ({}).call(e) < ({}).call(e) }}", l.to_ruby(), r.to_ruby()),
+            Node::EQ(ref l, ref r) => format!("-> e {{ ({}).call(e) == ({}).call(e) }}", l.to_ruby(), r.to_ruby()),
+            Node::GT(ref l, ref r) => format!("-> e {{ ({}).call(e) > ({}).call(e) }}", l.to_ruby(), r.to_ruby()),
             Node::Assign(ref name, ref expr) => format!("-> e {{ e.merge({{ :{} => ({}).call(e) }}) }}", name, expr.to_ruby()),
             Node::DoNothing => "-> e { e }".to_string(),
             Node::If(ref condition, ref consequence, ref alternative) => format!(
