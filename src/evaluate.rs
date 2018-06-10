@@ -57,6 +57,18 @@ impl Evaluate for Node {
             Node::Pair(ref fst, ref snd) => {
                 Node::pair(fst.clone(), snd.clone())
             }
+            Node::Fst(ref pair) => {
+                match **pair {
+                    Node::Pair(ref l, ref _r) => l.clone(),
+                    _ => panic!("Apply fst on non-pair type: {}", pair)
+                }
+            }
+            Node::Snd(ref pair) => {
+                match **pair {
+                    Node::Pair(ref _l, ref r) => r.clone(),
+                    _ => panic!("Apply snd on non-pair type: {}", pair)
+                }
+            }
         }
     }
 }

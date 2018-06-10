@@ -18,6 +18,8 @@ pub enum Node {
     Sequence(Box<Node>, Box<Node>),
     While(Box<Node>, Box<Node>),
     Pair(Box<Node>, Box<Node>),
+    Fst(Box<Node>),
+    Snd(Box<Node>),
 }
 
 impl Node {
@@ -35,6 +37,8 @@ impl Node {
     pub fn sequence(head: Box<Node>, more: Box<Node>) -> Box<Node> { Box::new(Node::Sequence(head, more)) }
     pub fn while_node(cond: Box<Node>, body: Box<Node>) -> Box<Node> { Box::new(Node::While(cond, body)) }
     pub fn pair(fst: Box<Node>, snd: Box<Node>) -> Box<Node> { Box::new(Node::Pair(fst, snd)) }
+    pub fn fst(pair: Box<Node>) -> Box<Node> { Box::new(Node::Fst(pair)) }
+    pub fn snd(pair: Box<Node>) -> Box<Node> { Box::new(Node::Snd(pair)) }
 
     pub fn value(&self) -> i64 {
         match *self {
@@ -68,6 +72,8 @@ impl Display for Node {
             Node::Sequence(ref head, ref more) => write!(f, "{0}; {1}", head, more),
             Node::While(ref cond, ref body) => write!(f, "while ({0}) {1}", cond, body),
             Node::Pair(ref fst, ref snd) => write!(f, "pair ({0}, {1})", fst, snd),
+            Node::Fst(ref pair) => write!(f, "fst ({0})", pair),
+            Node::Snd(ref pair) => write!(f, "snd ({0})", pair),
         }
     }
 }

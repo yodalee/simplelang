@@ -98,6 +98,26 @@ impl Reduce for Node {
                     Node::pair(l.clone(), r.clone())
                 }
             }
+            Node::Fst(ref pair) => {
+                if pair.reducible() {
+                    Node::fst(pair.reduce(environment))
+                } else {
+                    match **pair {
+                        Node::Pair(ref l, ref _r) => l.clone(),
+                        _ => panic!("Apply fst on non-pair type: {}", pair)
+                    }
+                }
+            }
+            Node::Snd(ref pair) => {
+                if pair.reducible() {
+                    Node::snd(pair.reduce(environment))
+                } else {
+                    match **pair {
+                        Node::Pair(ref _l, ref r) => r.clone(),
+                        _ => panic!("Apply snd on non-pair type: {}", pair)
+                    }
+                }
+            }
             _ => panic!("Non reducible type found: {}", *self)
         }
     }
