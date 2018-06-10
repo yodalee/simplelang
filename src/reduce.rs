@@ -242,4 +242,22 @@ mod tests {
         assert_eq!(9, machine.environment.get("x").value());
     }
 
+    #[test]
+    fn test_simple_small_pair() {
+        let mut env = Environment::new();
+        env.add("p", Node::pair(
+            Node::add(Node::number(3), Node::number(4)),
+            Node::multiply(Node::number(5), Node::number(6))
+        ));
+        let mut machine = Machine::new(
+            Node::sequence(
+                Node::assign("y", Node::fst(Node::variable("p"))),
+                Node::assign("z", Node::snd(Node::variable("p")))
+            ), env
+        );
+
+        machine.run();
+        assert_eq!(7, machine.environment.get("y").value());
+        assert_eq!(30, machine.environment.get("z").value());
+    }
 }

@@ -58,14 +58,18 @@ impl Evaluate for Node {
                 Node::pair(fst.clone(), snd.clone())
             }
             Node::Fst(ref pair) => {
-                match **pair {
-                    Node::Pair(ref l, ref _r) => l.clone(),
+                match *pair.evaluate(environment) {
+                    Node::Pair(ref l, ref _r) => {
+                        l.evaluate(environment).clone()
+                    }
                     _ => panic!("Apply fst on non-pair type: {}", pair)
                 }
             }
             Node::Snd(ref pair) => {
-                match **pair {
-                    Node::Pair(ref _l, ref r) => r.clone(),
+                match *pair.evaluate(environment) {
+                    Node::Pair(ref _l, ref r) => {
+                        r.evaluate(environment).clone()
+                    }
                     _ => panic!("Apply snd on non-pair type: {}", pair)
                 }
             }
@@ -130,5 +134,21 @@ mod tests {
         env.add("x", Node::number(1));
         println!("{}", statement.evaluate(&mut env));
         assert_eq!(9, env.get("x").value());
+    }
+
+    #[test]
+    fn test_simple_big_pair() {
+        let statement = Node::sequence(
+            Node::assign("y", Node::fst(Node::variable("p"))),
+            Node::assign("z", Node::snd(Node::variable("p")))
+        );
+        let mut env = Environment::new();
+        env.add("p", Node::pair(
+            Node::add(Node::number(3), Node::number(4)),
+            Node::multiply(Node::number(5), Node::number(6))
+        ));
+        println!("{}", statement.evaluate(&mut env));
+        //assert_eq!(7, env.get("y").value());
+        //assert_eq!(30, env.get("z").value());
     }
 }
