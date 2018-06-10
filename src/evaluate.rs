@@ -73,6 +73,7 @@ impl Evaluate for Node {
                     _ => panic!("Apply snd on non-pair type: {}", pair)
                 }
             }
+            _ => panic!("Non evaluate type found: {}", *self)
         }
     }
 }

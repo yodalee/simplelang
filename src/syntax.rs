@@ -1,3 +1,5 @@
+use super::environment::Environment;
+
 use std::fmt::Display;
 use std::fmt::Result;
 use std::fmt::Formatter;
@@ -20,6 +22,9 @@ pub enum Node {
     Pair(Box<Node>, Box<Node>),
     Fst(Box<Node>),
     Snd(Box<Node>),
+    Fun(String, String, Box<Node>),
+    Closure(Environment, Box<Node>),
+    Call(Box<Node>, Box<Node),
 }
 
 impl Node {
@@ -33,12 +38,19 @@ impl Node {
     pub fn variable(name: &str) -> Box<Node> { Box::new(Node::Variable(name.to_string())) }
     pub fn donothing() -> Box<Node> { Box::new(Node::DoNothing) }
     pub fn assign(name: &str, expr: Box<Node>) -> Box<Node> { Box::new(Node::Assign(name.to_string(), expr)) }
-    pub fn if_cond_else(condition: Box<Node>, consequence: Box<Node>, alternative: Box<Node>) -> Box<Node> { Box::new(Node::If(condition, consequence, alternative)) }
+    pub fn if_cond_else(condition: Box<Node>, consequence: Box<Node>, alternative: Box<Node>) -> Box<Node> {
+        Box::new(Node::If(condition, consequence, alternative))
+    }
     pub fn sequence(head: Box<Node>, more: Box<Node>) -> Box<Node> { Box::new(Node::Sequence(head, more)) }
     pub fn while_node(cond: Box<Node>, body: Box<Node>) -> Box<Node> { Box::new(Node::While(cond, body)) }
     pub fn pair(fst: Box<Node>, snd: Box<Node>) -> Box<Node> { Box::new(Node::Pair(fst, snd)) }
     pub fn fst(pair: Box<Node>) -> Box<Node> { Box::new(Node::Fst(pair)) }
     pub fn snd(pair: Box<Node>) -> Box<Node> { Box::new(Node::Snd(pair)) }
+    pub fn fun(funname: String, argname: String, body: Box<Node>) -> Box<Node> {
+        Box::new(Node::Fun(funname, argname, body))
+    }
+    pub fn closure(env: Environment, fun: Box<Node>) -> Box<Node> { Box::new(Node::Closure(env, fun)) }
+    pub fn call(fun: Box<Node>, arg: Box<Node>) -> Box<Node> { Box::new(Node::Call(fun, arg)) }
 
     pub fn value(&self) -> i64 {
         match *self {
@@ -74,6 +86,9 @@ impl Display for Node {
             Node::Pair(ref fst, ref snd) => write!(f, "pair ({0}, {1})", fst, snd),
             Node::Fst(ref pair) => write!(f, "fst ({0})", pair),
             Node::Snd(ref pair) => write!(f, "snd ({0})", pair),
+            Node::Fun(ref fname, ref argname, ref body) => write!(f, "function {0} ({1}) {2}", fname, argname, body),
+            Node::Closure(ref env, ref fun) => write!(f, "closure with {0}", fun),
+            Node::Call(ref fun, ref arg) => write!(f, "call {0} with {1}", fun, arg),
         }
     }
 }

@@ -6,6 +6,7 @@ use super::syntax::Node;
 
 use std::collections::HashMap;
 
+#[derive(Debug,PartialEq,Clone)]
 pub struct Environment {
     pub vars: HashMap<String, Box<Node>>
 }
