@@ -17,6 +17,7 @@ pub enum Node {
     If(Box<Node>, Box<Node>, Box<Node>),
     Sequence(Box<Node>, Box<Node>),
     While(Box<Node>, Box<Node>),
+    Pair(Box<Node>, Box<Node>),
 }
 
 impl Node {
@@ -33,6 +34,7 @@ impl Node {
     pub fn if_cond_else(condition: Box<Node>, consequence: Box<Node>, alternative: Box<Node>) -> Box<Node> { Box::new(Node::If(condition, consequence, alternative)) }
     pub fn sequence(head: Box<Node>, more: Box<Node>) -> Box<Node> { Box::new(Node::Sequence(head, more)) }
     pub fn while_node(cond: Box<Node>, body: Box<Node>) -> Box<Node> { Box::new(Node::While(cond, body)) }
+    pub fn pair(fst: Box<Node>, snd: Box<Node>) -> Box<Node> { Box::new(Node::Pair(fst, snd)) }
 
     pub fn value(&self) -> i64 {
         match *self {
@@ -64,7 +66,8 @@ impl Display for Node {
             Node::Assign(ref name, ref expr) => write!(f, "{0} = {1}", name, expr),
             Node::If(ref condition, ref consequence, ref alternative) => write!(f, "if ({0}) {1} else {2}", condition, consequence, alternative),
             Node::Sequence(ref head, ref more) => write!(f, "{0}; {1}", head, more),
-            Node::While(ref cond, ref body) => write!(f, "while ({0}) {1}", cond, body)
+            Node::While(ref cond, ref body) => write!(f, "while ({0}) {1}", cond, body),
+            Node::Pair(ref fst, ref snd) => write!(f, "pair ({0}, {1})", fst, snd),
         }
     }
 }

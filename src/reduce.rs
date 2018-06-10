@@ -10,6 +10,7 @@ impl Reduce for Node {
     fn reducible(&self) -> bool {
         match *self {
             Node::Number(_) | Node::Boolean(_) | Node::DoNothing => false,
+            Node::Pair(ref l, ref r) => l.reducible() || r.reducible(),
             _ => true,
         }
     }
@@ -87,6 +88,15 @@ impl Reduce for Node {
                     Node::sequence(body.clone(), Box::new(self.clone())),
                     Node::donothing()
                 )
+            }
+            Node::Pair(ref l, ref r) => {
+                if l.reducible() {
+                    Node::pair(l.reduce(environment), r.clone())
+                } else if r.reducible() {
+                    Node::pair(l.clone(), r.reduce(environment))
+                } else {
+                    Node::pair(l.clone(), r.clone())
+                }
             }
             _ => panic!("Non reducible type found: {}", *self)
         }

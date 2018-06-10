@@ -54,6 +54,9 @@ impl Evaluate for Node {
                     Node::donothing()
                 }
             }
+            Node::Pair(ref fst, ref snd) => {
+                Node::pair(fst.clone(), snd.clone())
+            }
         }
     }
 }
