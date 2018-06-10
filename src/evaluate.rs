@@ -73,6 +73,12 @@ impl Evaluate for Node {
                     _ => panic!("Apply snd on non-pair type: {}", pair)
                 }
             }
+            Node::Fun(ref _funname, ref _argname, ref _body) => {
+                Node::closure(environment.clone(), Box::new(self.clone()))
+            }
+            Node::Closure(ref env, ref fun) => {
+                Node::closure(env.clone(), fun.clone())
+            }
             _ => panic!("Non evaluate type found: {}", *self)
         }
     }

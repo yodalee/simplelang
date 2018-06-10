@@ -24,7 +24,7 @@ pub enum Node {
     Snd(Box<Node>),
     Fun(String, String, Box<Node>),
     Closure(Environment, Box<Node>),
-    Call(Box<Node>, Box<Node),
+    Call(Box<Node>, Box<Node>),
 }
 
 impl Node {

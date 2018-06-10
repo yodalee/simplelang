@@ -9,7 +9,9 @@ pub trait Reduce {
 impl Reduce for Node {
     fn reducible(&self) -> bool {
         match *self {
-            Node::Number(_) | Node::Boolean(_) | Node::DoNothing => false,
+            Node::Number(_) | Node::Boolean(_) => false,
+            Node::DoNothing => false,
+            Node::Closure(_, _) => false,
             Node::Pair(ref l, ref r) => l.reducible() || r.reducible(),
             _ => true,
         }
@@ -117,6 +119,9 @@ impl Reduce for Node {
                         _ => panic!("Apply snd on non-pair type: {}", pair)
                     }
                 }
+            }
+            Node::Fun(_, _, _) => {
+                Node::closure(environment.clone(), Box::new(self.clone()))
             }
             _ => panic!("Non reducible type found: {}", *self)
         }
