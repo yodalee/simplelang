@@ -72,3 +72,63 @@ impl Evaluate for Node {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_simple_big_number() {
+        let n = Node::number(3);
+        let mut env = Environment::new();
+        assert_eq!(3, n.evaluate(&mut env).value());
+    }
+
+    #[test]
+    fn test_simple_big_variable() {
+        let n = Node::variable("x");
+        let mut env = Environment::new();
+        env.add("x", Node::number(23));
+        assert_eq!(23, n.evaluate(&mut env).value());
+    }
+
+    #[test]
+    fn test_simple_big_arithmetic() {
+        let n = Node::multiply(Node::number(14), Node::number(3));
+        let mut env = Environment::new();
+        assert_eq!(42, n.evaluate(&mut env).value());
+    }
+
+    #[test]
+    fn test_simple_big_lessthan() {
+        let n = Node::lt(Node::add(Node::variable("x"), Node::number(2)), Node::variable("y"));
+        let mut env = Environment::new();
+        env.add("x", Node::number(2));
+        env.add("y", Node::number(5));
+        assert!(n.evaluate(&mut env).condition());
+    }
+
+    #[test]
+    fn test_simple_big_sequence() {
+        let statement = Node::sequence(
+            Node::assign("x", Node::add(Node::number(1), Node::number(1))),
+            Node::assign("y", Node::add(Node::variable("x"), Node::number(3)))
+        );
+        let mut env = Environment::new();
+        println!("{}", statement.evaluate(&mut env));
+        assert_eq!(2, env.get("x").value());
+        assert_eq!(5, env.get("y").value());
+    }
+
+    #[test]
+    fn test_simple_big_while() {
+        let statement = Node::while_node(
+            Node::lt(Node::variable("x"), Node::number(5)),
+            Node::assign("x", Node::multiply(Node::variable("x"), Node::number(3))),
+        );
+        let mut env = Environment::new();
+        env.add("x", Node::number(1));
+        println!("{}", statement.evaluate(&mut env));
+        assert_eq!(9, env.get("x").value());
+    }
+}
