@@ -28,6 +28,15 @@ impl Reduce for Node {
                     Node::number(l.value() + r.value())
                 }
             }
+            Node::Subtract(ref l, ref r) => {
+                if l.reducible() {
+                    Node::subtract(l.reduce(environment), r.clone())
+                } else if r.reducible() {
+                    Node::subtract(l.clone(), r.reduce(environment))
+                } else {
+                    Node::number(l.value() - r.value())
+                }
+            }
             Node::Multiply(ref l, ref r) => {
                 if l.reducible() {
                     Node::multiply(l.reduce(environment), r.clone())

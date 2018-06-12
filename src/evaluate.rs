@@ -14,6 +14,9 @@ impl Evaluate for Node {
             Node::Add(ref l, ref r) => {
                 Node::number(l.evaluate(environment).value() + r.evaluate(environment).value())
             }
+            Node::Subtract(ref l, ref r) => {
+                Node::number(l.evaluate(environment).value() - r.evaluate(environment).value())
+            }
             Node::Multiply(ref l, ref r) => {
                 Node::number(l.evaluate(environment).value() * r.evaluate(environment).value())
             }

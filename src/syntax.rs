@@ -8,6 +8,7 @@ use std::fmt::Formatter;
 pub enum Node {
     Number(i64),
     Add(Box<Node>, Box<Node>),
+    Subtract(Box<Node>, Box<Node>),
     Multiply(Box<Node>, Box<Node>),
     Boolean(bool),
     LT(Box<Node>, Box<Node>),
@@ -30,6 +31,7 @@ pub enum Node {
 impl Node {
     pub fn number(value: i64) -> Box<Node> { Box::new(Node::Number(value)) }
     pub fn add(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::Add(left, right)) }
+    pub fn subtract(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::Subtract(left, right)) }
     pub fn multiply(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::Multiply(left, right)) }
     pub fn boolean(value: bool) -> Box<Node> { Box::new(Node::Boolean(value)) }
     pub fn lt(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::LT(left, right)) }
@@ -72,6 +74,7 @@ impl Display for Node {
         match *self {
             Node::Number(value) => write!(f, "{}", value),
             Node::Add(ref l, ref r) => write!(f, "{0} + {1}", l, r),
+            Node::Subtract(ref l, ref r) => write!(f, "{0} - {1}", l, r),
             Node::Multiply(ref l, ref r) => write!(f, "{0} * {1}", l, r),
             Node::Boolean(value) => write!(f, "{}", value),
             Node::LT(ref l, ref r) => write!(f, "{0} < {1}", l, r),
