@@ -79,6 +79,23 @@ impl Evaluate for Node {
             Node::Closure(ref env, ref fun) => {
                 Node::closure(env.clone(), fun.clone())
             }
+            Node::Call(ref closure, ref arg) => {
+                let arg = arg.evaluate(environment);
+                match *closure.evaluate(environment) {
+                    Node::Closure(ref mut env, ref fun) => {
+                        if let Node::Fun(funname, argname, body) = *fun.clone() {
+                            env.add(&funname, closure.clone());
+                            if !argname.is_empty() {
+                                env.add(&argname, arg.clone());
+                            }
+                            body.evaluate(env)
+                        } else {
+                            panic!("Closure not contain function: {}", fun)
+                        }
+                    }
+                    _ => panic!("Call on non-closure type: {}", closure)
+                }
+            }
             _ => panic!("Non evaluate type found: {}", *self)
         }
     }
@@ -155,7 +172,58 @@ mod tests {
             Node::multiply(Node::number(5), Node::number(6))
         ));
         println!("{}", statement.evaluate(&mut env));
-        //assert_eq!(7, env.get("y").value());
-        //assert_eq!(30, env.get("z").value());
+        assert_eq!(7, env.get("y").value());
+        assert_eq!(30, env.get("z").value());
+    }
+
+    #[test]
+    fn test_simple_big_function() {
+        let statement = Node::assign("x", Node::call(
+            Node::fun("const", "", Node::number(42)),
+            Node::donothing()
+            )
+        );
+        let mut env = Environment::new();
+        println!("{}", statement.evaluate(&mut env));
+        assert_eq!(42, env.get("x").value());
+    }
+
+    #[test]
+    fn test_simple_big_function_var() {
+        let add1 = Node::fun("add1", "x", Node::add(Node::variable("x"), Node::number(1)));
+        let statement = Node::sequence(
+            Node::assign("f", add1),
+            Node::assign("result", Node::call(Node::variable("f"), Node::number(4)))
+        );
+        let mut env = Environment::new();
+        println!("{}", statement.evaluate(&mut env));
+        assert_eq!(5, env.get("result").value());
+    }
+
+    #[test]
+    fn test_simple_big_function_env() {
+        let x_add_y = Node::fun("add1", "y", Node::add(Node::variable("x"), Node::variable("y")));
+        let statement = Node::sequence(
+            Node::assign("x", Node::number(3)),
+            Node::sequence(
+                Node::assign("add3", x_add_y), // change x_add_y into y + 3
+                Node::sequence(
+                    Node::assign("x", Node::number(5)), // reassign x, and call function
+                    Node::assign("result", Node::call(Node::variable("add3"), Node::number(4)))
+                )
+            )
+        );
+        let mut env = Environment::new();
+        println!("{}", statement.evaluate(&mut env));
+        assert_eq!(7, env.get("result").value());
+    }
+
+    #[test]
+    fn test_simple_big_function_twoarg() {
+        let x_add_y = Node::fun("addx", "x", Node::fun("addy", "y", Node::add(Node::variable("x"), Node::variable("y"))));
+        let statement = Node::assign("result", Node::call(Node::call(x_add_y, Node::number(17)), Node::number(31)));
+        let mut env = Environment::new();
+        println!("{}", statement.evaluate(&mut env));
+        assert_eq!(48, env.get("result").value());
     }
 }
