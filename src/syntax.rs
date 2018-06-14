@@ -16,6 +16,7 @@ pub enum Node {
     GT(Box<Node>, Box<Node>),
     Variable(String),
     DoNothing,
+    IsDoNothing(Box<Node>),
     Assign(String, Box<Node>),
     If(Box<Node>, Box<Node>, Box<Node>),
     Sequence(Box<Node>, Box<Node>),
@@ -39,6 +40,7 @@ impl Node {
     pub fn gt(left: Box<Node>, right: Box<Node>) -> Box<Node> { Box::new(Node::GT(left, right)) }
     pub fn variable(name: &str) -> Box<Node> { Box::new(Node::Variable(name.to_string())) }
     pub fn donothing() -> Box<Node> { Box::new(Node::DoNothing) }
+    pub fn isdonothing(node: Box<Node>) -> Box<Node> { Box::new(Node::IsDoNothing(node)) }
     pub fn assign(name: &str, expr: Box<Node>) -> Box<Node> { Box::new(Node::Assign(name.to_string(), expr)) }
     pub fn if_cond_else(condition: Box<Node>, consequence: Box<Node>, alternative: Box<Node>) -> Box<Node> {
         Box::new(Node::If(condition, consequence, alternative))
@@ -82,6 +84,7 @@ impl Display for Node {
             Node::GT(ref l, ref r) => write!(f, "{0} > {1}", l, r),
             Node::Variable(ref name) => write!(f, "{}", name),
             Node::DoNothing => write!(f, "do-nothing"),
+            Node::IsDoNothing(ref node) => write!(f, "is-do-nothing({0})", node),
             Node::Assign(ref name, ref expr) => write!(f, "{0} = {1}", name, expr),
             Node::If(ref condition, ref consequence, ref alternative) => write!(f, "if ({0}) {1} else {2}", condition, consequence, alternative),
             Node::Sequence(ref head, ref more) => write!(f, "{0}; {1}", head, more),

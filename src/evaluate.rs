@@ -11,6 +11,13 @@ impl Evaluate for Node {
             Node::Number(v) => { Node::number(v) }
             Node::Boolean(v) => { Node::boolean(v) }
             Node::DoNothing => { Node::donothing() }
+            Node::IsDoNothing(ref node) => {
+                let node = node.evaluate(environment);
+                match *node {
+                    Node::DoNothing => Node::boolean(true),
+                    _ => Node::boolean(false),
+                }
+            }
             Node::Add(ref l, ref r) => {
                 Node::number(l.evaluate(environment).value() + r.evaluate(environment).value())
             }
