@@ -90,7 +90,7 @@ impl Display for Node {
             Node::Fst(ref pair) => write!(f, "fst ({0})", pair),
             Node::Snd(ref pair) => write!(f, "snd ({0})", pair),
             Node::Fun(ref fname, ref argname, ref body) => write!(f, "function {0} ({1}) {2}", fname, argname, body),
-            Node::Closure(ref env, ref fun) => write!(f, "closure with {0}", fun),
+            Node::Closure(ref env, ref fun) => write!(f, "closure {0} with env {1}", fun, env),
             Node::Call(ref closure, ref arg) => write!(f, "call {0} with {1}", closure, arg),
         }
     }

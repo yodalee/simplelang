@@ -84,19 +84,21 @@ impl Evaluate for Node {
             }
             Node::Call(ref closure, ref arg) => {
                 let arg = arg.evaluate(environment);
-                match *closure.evaluate(environment) {
-                    Node::Closure(ref mut env, ref fun) => {
+                let clsr = closure.evaluate(environment);
+                match *clsr {
+                    Node::Closure(ref env, ref fun) => {
                         if let Node::Fun(funname, argname, body) = *fun.clone() {
-                            env.add(&funname, closure.clone());
+                            let mut env = env.clone();
+                            env.add(&funname, clsr.clone());
                             if !argname.is_empty() {
                                 env.add(&argname, arg.clone());
                             }
-                            body.evaluate(env)
+                            body.evaluate(&mut env)
                         } else {
                             panic!("Closure not contain function: {}", fun)
                         }
                     }
-                    _ => panic!("Call on non-closure type: {}", closure)
+                    _ => panic!("Call on non-closure type: {:?}", closure)
                 }
             }
             _ => panic!("Non evaluate type found: {}", *self)
@@ -228,5 +230,21 @@ mod tests {
         let mut env = Environment::new();
         println!("{}", statement.evaluate(&mut env));
         assert_eq!(48, env.get("result").value());
+    }
+
+    #[test]
+    fn test_simple_big_function_recursive() {
+        let factor = Node::fun("factor", "x", Node::if_cond_else(
+                Node::gt(Node::variable("x"), Node::number(1)),
+                Node::multiply(Node::variable("x"),
+                               Node::call(Node::variable("factor"), Node::subtract(Node::variable("x"), Node::number(1)))),
+                Node::number(1)));
+        let statement = Node::sequence(
+            Node::assign("entry", factor),
+            Node::assign("result", Node::call(Node::variable("entry"), Node::number(10)))
+        );
+        let mut env = Environment::new();
+        println!("{}", statement.evaluate(&mut env));
+        assert_eq!(3628800, env.get("result").value());
     }
 }
