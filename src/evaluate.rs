@@ -1,8 +1,56 @@
 use super::syntax::{Node};
 use super::environment::{Environment};
+use std::collections::HashSet;
 
 pub trait Evaluate {
     fn evaluate(&self, environment: &mut Environment) -> Box<Node>;
+}
+
+fn get_free_vars_helper(node: &Box<Node>, varlist: &mut HashSet<String>, free_vars: &mut HashSet<String>) {
+    match **node {
+        Node::IsDoNothing(ref node) | Node::Fst(ref node) | Node::Snd(ref node) => {
+            get_free_vars_helper(node, varlist, free_vars);
+        }
+        Node::Add(ref l, ref r) | Node::Subtract(ref l, ref r) |
+            Node::Multiply(ref l, ref r) | Node::LT(ref l, ref r) |
+            Node::EQ(ref l, ref r) | Node::GT(ref l, ref r) |
+            Node::Sequence(ref l, ref r) | Node::While(ref l, ref r) |
+            Node::Pair(ref l, ref r) => {
+                get_free_vars_helper(l, varlist, free_vars);
+                get_free_vars_helper(r, varlist, free_vars);
+        }
+        Node::Variable(ref name) => { 
+            if !varlist.contains(name) {
+                free_vars.insert(name.clone());
+            }
+        }
+        Node::Assign(ref name, ref expr) => {
+            get_free_vars_helper(expr, varlist, free_vars);
+            varlist.insert(name.clone());
+        }
+        Node::If(ref condition, ref consequence, ref alternative) => {
+            get_free_vars_helper(condition, varlist, free_vars);
+            get_free_vars_helper(consequence, varlist, free_vars);
+            get_free_vars_helper(alternative, varlist, free_vars);
+        }
+        Node::Fun(ref funname, ref argname, ref body) => {
+            varlist.insert(funname.clone());
+            varlist.insert(argname.clone());
+            get_free_vars_helper(body, varlist, free_vars);
+        }
+        Node::Closure(ref _env, ref fun) => {
+            get_free_vars_helper(fun, varlist, free_vars);
+        }
+        // Number, Boolean, DoNothing
+        _ => (),
+    }
+}
+
+fn get_free_vars(node: &Box<Node>) -> HashSet<String> {
+    let mut vars: HashSet<String> = HashSet::new();
+    let mut free_vars: HashSet<String> = HashSet::new();
+    get_free_vars_helper(node, &mut vars, &mut free_vars);
+    free_vars
 }
 
 impl Evaluate for Node {
@@ -253,5 +301,17 @@ mod tests {
         let mut env = Environment::new();
         println!("{}", statement.evaluate(&mut env));
         assert_eq!(3628800, env.get("result").value());
+    }
+
+    #[test]
+    fn test_get_free_vars() {
+        let x_add_y = Node::fun("addx", "x", Node::fun("addy", "y", Node::add(Node::variable("x"), Node::variable("y"))));
+        let freevars = get_free_vars(&x_add_y).iter().cloned().collect::<Vec<String>>();
+        assert!(freevars.is_empty());
+
+        let add_y = Node::fun("addy", "x", Node::add(Node::variable("x"), Node::variable("y")));
+        let freevars = get_free_vars(&add_y).iter().cloned().collect::<Vec<String>>();
+        assert!(!freevars.is_empty());
+        assert_eq!("y", &freevars[0]);
     }
 }
