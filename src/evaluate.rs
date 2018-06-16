@@ -54,60 +54,58 @@ fn get_free_vars(node: &Box<Node>) -> HashSet<String> {
 }
 
 impl Evaluate for Node {
-    fn evaluate(&self, environment: &mut Environment) -> Box<Node> {
+    fn evaluate(&self, env: &mut Environment) -> Box<Node> {
         match *self {
             Node::Number(v) => { Node::number(v) }
             Node::Boolean(v) => { Node::boolean(v) }
             Node::DoNothing => { Node::donothing() }
             Node::IsDoNothing(ref node) => {
-                let node = node.evaluate(environment);
+                let node = node.evaluate(env);
                 match *node {
                     Node::DoNothing => Node::boolean(true),
                     _ => Node::boolean(false),
                 }
             }
             Node::Add(ref l, ref r) => {
-                Node::number(l.evaluate(environment).value() + r.evaluate(environment).value())
+                Node::number(l.evaluate(env).value() + r.evaluate(env).value())
             }
             Node::Subtract(ref l, ref r) => {
-                Node::number(l.evaluate(environment).value() - r.evaluate(environment).value())
+                Node::number(l.evaluate(env).value() - r.evaluate(env).value())
             }
             Node::Multiply(ref l, ref r) => {
-                Node::number(l.evaluate(environment).value() * r.evaluate(environment).value())
+                Node::number(l.evaluate(env).value() * r.evaluate(env).value())
             }
             Node::LT(ref l, ref r) => {
-                Node::boolean(l.evaluate(environment).value() < r.evaluate(environment).value())
+                Node::boolean(l.evaluate(env).value() < r.evaluate(env).value())
             }
             Node::EQ(ref l, ref r) => {
-                Node::boolean(l.evaluate(environment).value() == r.evaluate(environment).value())
+                Node::boolean(l.evaluate(env).value() == r.evaluate(env).value())
             }
             Node::GT(ref l, ref r) => {
-                Node::lt(r.clone(), l.clone()).evaluate(environment)
+                Node::lt(r.clone(), l.clone()).evaluate(env)
             }
-            Node::Variable(ref name) => {
-                environment.get(&name)
-            }
+            Node::Variable(ref name) => { env.get(&name) }
             Node::Assign(ref name, ref expr) => {
-                let reduce = expr.evaluate(environment);
-                environment.add(name, reduce.clone());
+                let reduce = expr.evaluate(env);
+                env.add(name, reduce.clone());
                 Node::donothing()
             }
             Node::If(ref condition, ref consequence, ref alternative) => {
-                if condition.evaluate(environment).condition() {
-                    consequence.evaluate(environment)
+                if condition.evaluate(env).condition() {
+                    consequence.evaluate(env)
                 } else {
-                    alternative.evaluate(environment)
+                    alternative.evaluate(env)
                 }
             }
             Node::Sequence(ref head, ref more) => {
-                head.evaluate(environment);
-                more.evaluate(environment);
+                head.evaluate(env);
+                more.evaluate(env);
                 Node::donothing()
             }
             Node::While(ref cond, ref body) => {
-                if cond.evaluate(environment).condition() {
-                    body.evaluate(environment);
-                    self.evaluate(environment)
+                if cond.evaluate(env).condition() {
+                    body.evaluate(env);
+                    self.evaluate(env)
                 } else {
                     Node::donothing()
                 }
@@ -116,30 +114,30 @@ impl Evaluate for Node {
                 Node::pair(fst.clone(), snd.clone())
             }
             Node::Fst(ref pair) => {
-                match *pair.evaluate(environment) {
+                match *pair.evaluate(env) {
                     Node::Pair(ref l, ref _r) => {
-                        l.evaluate(environment).clone()
+                        l.evaluate(env).clone()
                     }
                     _ => panic!("Apply fst on non-pair type: {}", pair)
                 }
             }
             Node::Snd(ref pair) => {
-                match *pair.evaluate(environment) {
+                match *pair.evaluate(env) {
                     Node::Pair(ref _l, ref r) => {
-                        r.evaluate(environment).clone()
+                        r.evaluate(env).clone()
                     }
                     _ => panic!("Apply snd on non-pair type: {}", pair)
                 }
             }
             Node::Fun(ref _funname, ref _argname, ref _body) => {
-                Node::closure(environment.clone(), Box::new(self.clone()))
+                Node::closure(env.clone(), Box::new(self.clone()))
             }
             Node::Closure(ref env, ref fun) => {
                 Node::closure(env.clone(), fun.clone())
             }
             Node::Call(ref closure, ref arg) => {
-                let arg = arg.evaluate(environment);
-                let clsr = closure.evaluate(environment);
+                let arg = arg.evaluate(env);
+                let clsr = closure.evaluate(env);
                 match *clsr {
                     Node::Closure(ref env, ref fun) => {
                         if let Node::Fun(funname, argname, body) = *fun.clone() {
