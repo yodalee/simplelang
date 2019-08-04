@@ -1,0 +1,28 @@
+number = @ { ASCII_NONZERO_DIGIT ~ (ASCII_DIGIT)* }
+variable = @ { ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+
+WHITESPACE = _{ " " | NEWLINE }
+
+op_add    = { "+" }
+op_sub    = { "-" }
+op_mul    = { "*" }
+op_lt     = { "<" }
+op_gt     = { ">" }
+op_eq     = { "==" }
+
+op_binary = _ { op_add | op_sub | op_mul | op_lt | op_gt | op_eq }
+
+factor = _{ (variable | number ) }
+expr = { factor ~ (op_binary ~ factor)* }
+
+stat_assign = { variable ~ "=" ~ expr ~ ";" }
+stat_while = { "while" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}" }
+stat_if = { ("if" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}" ~ "else" ~ "{" ~ stats ~ "}" ) |
+            ("if" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}") }
+
+stat = _{ (stat_if | stat_while | stat_assign) }
+
+stats = { (stat)* }
+
+simple = _{ SOI ~ stats ~ EOI }
+
