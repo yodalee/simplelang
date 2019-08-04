@@ -1,6 +1,6 @@
 extern crate proglang;
 
-use proglang::syntax::*;
+use proglang::simple::syntax::*;
 
 pub fn vec_to_list(v: Vec<i64>) -> Box<Node> {
     v.iter().rev().fold(Node::donothing(), |cdr, car| Node::pair(Node::number(*car), cdr))
