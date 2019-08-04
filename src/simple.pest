@@ -12,7 +12,7 @@ op_eq     = { "==" }
 
 op_binary = _ { op_add | op_sub | op_mul | op_lt | op_gt | op_eq }
 
-factor = _{ (variable | number ) }
+factor = _{ ( "(" ~ expr ~ ")" | variable | number ) }
 expr = { factor ~ (op_binary ~ factor)* }
 
 stat_assign = { variable ~ "=" ~ expr ~ ";" }
