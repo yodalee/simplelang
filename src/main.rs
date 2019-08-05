@@ -60,6 +60,7 @@ fn build_stat(pair: Pair<Rule>) -> Box<Node> {
         Rule::stat_assign => build_assign(pair),
         Rule::stat_if => build_if(pair),
         Rule::stat_while => build_while(pair),
+        Rule::stat_func => build_func(pair),
         _ => unreachable!(),
     }
 }
@@ -86,6 +87,22 @@ fn build_while(pair: Pair<Rule>) -> Box<Node> {
     let cond = climb(inner.next().unwrap());
     let stmt = build_stats(inner.next().unwrap());
     Node::while_node(cond, stmt)
+}
+
+fn build_func(pair: Pair<Rule>) -> Box<Node> {
+    let mut inner = pair.into_inner();
+    let funcname = inner.next().unwrap().as_span().as_str();
+    let mut next = inner.next().unwrap();
+    let mut argname = "";
+    if next.as_rule() == Rule::variable {
+        argname = next.as_span().as_str();
+        next = inner.next().unwrap();
+    }
+    let body = match next.as_rule() {
+        Rule::expr => climb(next),
+        _ => build_stats(next),
+    };
+    Node::assign(funcname, Node::fun(funcname, argname, body))
 }
 
 lazy_static! {
@@ -136,7 +153,14 @@ fn build_call(pair: Pair<Rule>) -> Box<Node> {
         "pair" => Node::pair(climb(inner.next().unwrap()), climb(inner.next().unwrap())),
         "fst"  => Node::fst(climb(inner.next().unwrap())),
         "snd"  => Node::snd(climb(inner.next().unwrap())),
-        _ => unreachable!(),
+        &_     => {
+            Node::call(Node::variable(funcname),
+                match inner.next() {
+                    Some(pair) => climb(pair),
+                    None => Node::donothing(),
+                }
+            )
+        }
     }
 }
 
