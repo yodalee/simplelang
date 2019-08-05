@@ -124,6 +124,18 @@ fn build_factor(pair: Pair<Rule>) -> Box<Node> {
         Rule::variable => Node::variable(pair.as_span().as_str()),
         Rule::number => Node::number(pair.as_span().as_str().parse::<i64>().unwrap()),
         Rule::expr => climb(pair),
+        Rule::call => build_call(pair),
+        _ => unreachable!(),
+    }
+}
+
+fn build_call(pair: Pair<Rule>) -> Box<Node> {
+    let mut inner = pair.into_inner();
+    let funcname = inner.next().unwrap().as_span().as_str();
+    match funcname.as_ref() {
+        "pair" => Node::pair(climb(inner.next().unwrap()), climb(inner.next().unwrap())),
+        "fst"  => Node::fst(climb(inner.next().unwrap())),
+        "snd"  => Node::snd(climb(inner.next().unwrap())),
         _ => unreachable!(),
     }
 }
