@@ -24,7 +24,6 @@ impl Machine {
 
     pub fn run(&mut self) {
         self.expression.evaluate(&mut self.environment);
-        println!("{}", self.expression);
     }
 
     pub fn get_environment(&self) -> Environment {

@@ -35,6 +35,6 @@ impl Display for Environment {
             parts.push(format!("key: {0} = val: {1}", key, val))
         };
         let text = parts.join(", ");
-        write!(f, "{}", text)
+        write!(f, "{{ {} }}", text)
     }
 }
