@@ -3,6 +3,7 @@ variable = @ { ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
 call = { variable ~ "(" ~ ( expr ~ ( "," ~ expr )* )? ~ ")" }
 
 WHITESPACE = _{ " " | NEWLINE }
+COMMENT = _{ "//" ~ (!"\n" ~ ANY)* ~ "\n" }
 
 op_add    = { "+" }
 op_sub    = { "-" }
@@ -20,9 +21,9 @@ stat_assign = { variable ~ "=" ~ expr ~ ";" }
 stat_while = { "while" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}" }
 stat_if = { ("if" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}" ~ "else" ~ "{" ~ stats ~ "}" ) |
             ("if" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}") }
-stat_func = { "function" ~ variable ~ "(" ~ variable? ~ ")" ~ "{" ~ ( expr | stats ) ~ "}" }
+stat_func = { "function" ~ variable ~ "(" ~ (variable ~ ("," ~ variable)*)? ~ ")" ~ "{" ~ stats ~ "}" }
 
-stat = _{ (stat_func | stat_if | stat_while | stat_assign) }
+stat = _{ (stat_func | stat_if | stat_while | stat_assign | expr) }
 
 stats = { (stat)* }
 

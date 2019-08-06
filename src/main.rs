@@ -52,7 +52,13 @@ fn parse_simple(content: &str) {
 fn build_stats(pair: Pair<Rule>) -> Box<Node> {
     let inner = pair.into_inner();
     let nodes : Vec<_> = inner.into_iter().map(|pair| build_stat(pair)).collect();
-    nodes.iter().rev().fold(Node::donothing(), |acc, node| Node::sequence(node.clone(), acc))
+    if nodes.is_empty() {
+        Node::donothing()
+    } else {
+        let first = nodes[0].clone();
+        nodes.iter().skip(1).fold(
+            first, |acc, node| Node::sequence(acc, node.clone()))
+    }
 }
 
 fn build_stat(pair: Pair<Rule>) -> Box<Node> {
@@ -61,6 +67,7 @@ fn build_stat(pair: Pair<Rule>) -> Box<Node> {
         Rule::stat_if => build_if(pair),
         Rule::stat_while => build_while(pair),
         Rule::stat_func => build_func(pair),
+        Rule::expr => climb(pair),
         _ => unreachable!(),
     }
 }
@@ -98,10 +105,7 @@ fn build_func(pair: Pair<Rule>) -> Box<Node> {
         argname = next.as_span().as_str();
         next = inner.next().unwrap();
     }
-    let body = match next.as_rule() {
-        Rule::expr => climb(next),
-        _ => build_stats(next),
-    };
+    let body = build_stats(next);
     Node::assign(funcname, Node::fun(funcname, argname, body))
 }
 
@@ -154,12 +158,11 @@ fn build_call(pair: Pair<Rule>) -> Box<Node> {
         "fst"  => Node::fst(climb(inner.next().unwrap())),
         "snd"  => Node::snd(climb(inner.next().unwrap())),
         &_     => {
-            Node::call(Node::variable(funcname),
-                match inner.next() {
-                    Some(pair) => climb(pair),
-                    None => Node::donothing(),
-                }
-            )
+            let mut args : Vec<_> = inner.map(|pair| climb(pair)).collect();
+            if args.is_empty() {
+                args.push(Node::donothing());
+            }
+            args.iter().fold(Node::variable(funcname), |acc, arg| Node::call(acc, arg.clone()))
         }
     }
 }
