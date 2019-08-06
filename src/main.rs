@@ -158,11 +158,11 @@ fn build_call(pair: Pair<Rule>) -> Box<Node> {
         "fst"  => Node::fst(climb(inner.next().unwrap())),
         "snd"  => Node::snd(climb(inner.next().unwrap())),
         &_     => {
-            let mut args : Vec<_> = inner.map(|pair| climb(pair)).collect();
-            if args.is_empty() {
-                args.push(Node::donothing());
-            }
-            args.iter().fold(Node::variable(funcname), |acc, arg| Node::call(acc, arg.clone()))
+            let arg = match inner.next() {
+                Some(pair) => climb(pair),
+                None => Node::donothing(),
+            };
+            Node::call(Node::variable(funcname), arg)
         }
     }
 }

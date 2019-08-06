@@ -21,7 +21,7 @@ stat_assign = { variable ~ "=" ~ expr ~ ";" }
 stat_while = { "while" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}" }
 stat_if = { ("if" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}" ~ "else" ~ "{" ~ stats ~ "}" ) |
             ("if" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}") }
-stat_func = { "function" ~ variable ~ "(" ~ (variable ~ ("," ~ variable)*)? ~ ")" ~ "{" ~ stats ~ "}" }
+stat_func = { "function" ~ variable ~ "(" ~ variable? ~ ")" ~ "{" ~ stats ~ "}" }
 
 stat = _{ (stat_func | stat_if | stat_while | stat_assign | expr) }
 
