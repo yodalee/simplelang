@@ -66,8 +66,8 @@ fn build_stat(pair: Pair<Rule>) -> Box<Node> {
         Rule::stat_assign => build_assign(pair),
         Rule::stat_if => build_if(pair),
         Rule::stat_while => build_while(pair),
-        Rule::stat_func => build_func(pair),
         Rule::expr => climb(pair),
+        Rule::funcdef => build_func(pair),
         _ => unreachable!(),
     }
 }
@@ -75,7 +75,12 @@ fn build_stat(pair: Pair<Rule>) -> Box<Node> {
 fn build_assign(pair: Pair<Rule>) -> Box<Node> {
     let mut inner = pair.into_inner();
     let lhs = inner.next().unwrap().as_span().as_str();
-    let rhs = climb(inner.next().unwrap());
+    let node = inner.next().unwrap();
+    let rhs = match node.as_rule() {
+        Rule::expr => climb(node),
+        Rule::funcdef => build_func(node),
+        _ => unreachable!(),
+    };
     Node::assign(lhs, rhs)
 }
 
@@ -106,7 +111,7 @@ fn build_func(pair: Pair<Rule>) -> Box<Node> {
         next = inner.next().unwrap();
     }
     let body = build_stats(next);
-    Node::assign(funcname, Node::fun(funcname, argname, body))
+    Node::fun(funcname, argname, body)
 }
 
 lazy_static! {

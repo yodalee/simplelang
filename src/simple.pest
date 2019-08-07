@@ -16,14 +16,14 @@ op_binary = _ { op_add | op_sub | op_mul | op_lt | op_gt | op_eq }
 
 factor = _{ ( "(" ~ expr ~ ")" | call | variable | number )}
 expr = { factor ~ (op_binary ~ factor)* }
+funcdef = { "function" ~ variable ~ "(" ~ variable? ~ ")" ~ "{" ~ stats ~ "}" }
 
-stat_assign = { variable ~ "=" ~ expr ~ ";" }
+stat_assign = { variable ~ "=" ~ (funcdef | expr) ~ ";" }
 stat_while = { "while" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}" }
 stat_if = { ("if" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}" ~ "else" ~ "{" ~ stats ~ "}" ) |
             ("if" ~ "(" ~ expr ~ ")" ~ "{" ~ stats ~ "}") }
-stat_func = { "function" ~ variable ~ "(" ~ variable? ~ ")" ~ "{" ~ stats ~ "}" }
 
-stat = _{ (stat_func | stat_if | stat_while | stat_assign | expr) }
+stat = _{ (stat_if | stat_while | stat_assign | funcdef | expr) }
 
 stats = { (stat)* }
 
