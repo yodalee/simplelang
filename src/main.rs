@@ -145,30 +145,40 @@ fn climb(pair: Pair<Rule>) -> Box<Node> {
     PREC_CLIMBER.climb(pair.into_inner(), build_factor, infix_rule)
 }
 
+fn build_call(pair: Pair<Rule>) -> Box<Node> {
+    let mut inner = pair.into_inner();
+    let var = inner.next().unwrap().as_span().as_str();
+    match var.as_ref() {
+        "pair" => Node::pair(climb(inner.next().unwrap()), climb(inner.next().unwrap())),
+        "fst"  => Node::fst(climb(inner.next().unwrap())),
+        "snd"  => Node::snd(climb(inner.next().unwrap())),
+        "nothing"   => Node::donothing(),
+        "isnothing" => Node::isdonothing(climb(inner.next().unwrap())),
+        &_     => {
+            let arg = match inner.next() {
+                Some(pair) => climb(pair),
+                None => Node::donothing(),
+            };
+            Node::call(Node::variable(var), arg)
+        }
+    }
+}
+
+fn build_list(pair: Pair<Rule>) -> Box<Node> {
+    pair.into_inner()
+        .map(|pair| climb(pair))
+        .rev()
+        .fold(Node::donothing(), |cdr, car| Node::pair(car, cdr))
+}
+
 fn build_factor(pair: Pair<Rule>) -> Box<Node> {
     match pair.as_rule() {
         Rule::variable => Node::variable(pair.as_span().as_str()),
         Rule::number => Node::number(pair.as_span().as_str().parse::<i64>().unwrap()),
         Rule::expr => climb(pair),
         Rule::call => build_call(pair),
+        Rule::list => build_list(pair),
         _ => unreachable!(),
-    }
-}
-
-fn build_call(pair: Pair<Rule>) -> Box<Node> {
-    let mut inner = pair.into_inner();
-    let funcname = inner.next().unwrap().as_span().as_str();
-    match funcname.as_ref() {
-        "pair" => Node::pair(climb(inner.next().unwrap()), climb(inner.next().unwrap())),
-        "fst"  => Node::fst(climb(inner.next().unwrap())),
-        "snd"  => Node::snd(climb(inner.next().unwrap())),
-        &_     => {
-            let arg = match inner.next() {
-                Some(pair) => climb(pair),
-                None => Node::donothing(),
-            };
-            Node::call(Node::variable(funcname), arg)
-        }
     }
 }
 

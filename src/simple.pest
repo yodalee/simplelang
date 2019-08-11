@@ -1,6 +1,7 @@
 number = @ { ASCII_NONZERO_DIGIT ~ (ASCII_DIGIT)* }
 variable = @ { ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
 call = { variable ~ "(" ~ ( expr ~ ( "," ~ expr )* )? ~ ")" }
+list = { "[" ~ (expr ~ ("," ~ expr)*)? ~ "]" }
 
 WHITESPACE = _{ " " | NEWLINE }
 COMMENT = _{ "//" ~ (!"\n" ~ ANY)* ~ "\n" }
@@ -14,7 +15,7 @@ op_eq     = { "==" }
 
 op_binary = _ { op_add | op_sub | op_mul | op_lt | op_gt | op_eq }
 
-factor = _{ ( "(" ~ expr ~ ")" | call | variable | number )}
+factor = _{ ( "(" ~ expr ~ ")" | list | call | variable | number )}
 expr = { factor ~ (op_binary ~ factor)* }
 funcdef = { "function" ~ variable ~ "(" ~ variable? ~ ")" ~ "{" ~ stats ~ "}" }
 
