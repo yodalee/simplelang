@@ -112,7 +112,7 @@ impl Evaluate for Node {
                 }
             }
             Node::Pair(ref fst, ref snd) => {
-                Node::pair(fst.clone(), snd.clone())
+                Node::pair(fst.evaluate(env).clone(), snd.evaluate(env).clone())
             }
             Node::Fst(ref pair) => {
                 match *pair.evaluate(env) {
