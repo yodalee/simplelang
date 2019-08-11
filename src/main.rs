@@ -74,7 +74,7 @@ fn build_stat(pair: Pair<Rule>) -> Box<Node> {
 
 fn build_assign(pair: Pair<Rule>) -> Box<Node> {
     let mut inner = pair.into_inner();
-    let lhs = inner.next().unwrap().as_span().as_str();
+    let lhs = inner.next().unwrap().as_str();
     let node = inner.next().unwrap();
     let rhs = match node.as_rule() {
         Rule::expr => climb(node),
@@ -103,11 +103,11 @@ fn build_while(pair: Pair<Rule>) -> Box<Node> {
 
 fn build_func(pair: Pair<Rule>) -> Box<Node> {
     let mut inner = pair.into_inner();
-    let funcname = inner.next().unwrap().as_span().as_str();
+    let funcname = inner.next().unwrap().as_str();
     let mut next = inner.next().unwrap();
     let mut argname = "";
     if next.as_rule() == Rule::variable {
-        argname = next.as_span().as_str();
+        argname = next.as_str();
         next = inner.next().unwrap();
     }
     let body = build_stats(next);
@@ -147,7 +147,7 @@ fn climb(pair: Pair<Rule>) -> Box<Node> {
 
 fn build_call(pair: Pair<Rule>) -> Box<Node> {
     let mut inner = pair.into_inner();
-    let var = inner.next().unwrap().as_span().as_str();
+    let var = inner.next().unwrap().as_str();
     match var.as_ref() {
         "pair" => Node::pair(climb(inner.next().unwrap()), climb(inner.next().unwrap())),
         "fst"  => Node::fst(climb(inner.next().unwrap())),
@@ -173,8 +173,8 @@ fn build_list(pair: Pair<Rule>) -> Box<Node> {
 
 fn build_factor(pair: Pair<Rule>) -> Box<Node> {
     match pair.as_rule() {
-        Rule::variable => Node::variable(pair.as_span().as_str()),
-        Rule::number => Node::number(pair.as_span().as_str().parse::<i64>().unwrap()),
+        Rule::variable => Node::variable(pair.as_str()),
+        Rule::number => Node::number(pair.as_str().parse::<i64>().unwrap()),
         Rule::expr => climb(pair),
         Rule::call => build_call(pair),
         Rule::list => build_list(pair),
