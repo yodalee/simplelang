@@ -26,15 +26,21 @@ impl Environment {
             None => panic!("Variable {} not found", name),
         }
     }
+
+    pub fn prettyprint(&self, indent: usize) -> String {
+        let prefix = " ".repeat(indent);
+        let mut parts = Vec::new();
+        for (key, val) in self.vars.iter() {
+            parts.push(format!("{0}{1} = {2}\n",
+                               prefix, key, val))
+        };
+        let text = parts.join("");
+        format!("{0}{{\n{1}{0}}}", prefix, text)
+    }
 }
 
 impl Display for Environment {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        let mut parts = Vec::new();
-        for (key, val) in self.vars.iter() {
-            parts.push(format!("key: {0} = val: {1}", key, val))
-        };
-        let text = parts.join(", ");
-        write!(f, "{{ {} }}", text)
+        write!(f, "{}", self.prettyprint(0))
     }
 }

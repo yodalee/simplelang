@@ -55,7 +55,7 @@ fn get_free_vars(node: &Box<Node>) -> HashSet<String> {
 
 impl Evaluate for Node {
     fn evaluate(&self, env: &mut Environment) -> Box<Node> {
-        println!("evaluate {} with environment {}", self, env);
+        println!("evaluate {} with environment \n{}\n", self, env.prettyprint(0));
         match *self {
             Node::Number(v) => { Node::number(v) }
             Node::Boolean(v) => { Node::boolean(v) }

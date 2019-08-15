@@ -69,32 +69,38 @@ impl Node {
             _ => panic!("Type cannot eval to boolean {}", *self)
         }
     }
+
+    fn prettyprint(&self, indent: usize) -> String {
+        let prefix = " ".repeat(indent);
+        match *self {
+            Node::Number(value) => format!("{}", value),
+            Node::Add(ref l, ref r) => format!("{0} + {1}", l, r),
+            Node::Subtract(ref l, ref r) => format!("{0} - {1}", l, r),
+            Node::Multiply(ref l, ref r) => format!("{0} * {1}", l, r),
+            Node::Boolean(value) => format!("{}", value),
+            Node::LT(ref l, ref r) => format!("{0} < {1}", l, r),
+            Node::EQ(ref l, ref r) => format!("{0} = {1}", l, r),
+            Node::GT(ref l, ref r) => format!("{0} > {1}", l, r),
+            Node::Variable(ref name) => format!("{}", name),
+            Node::DoNothing => format!("do-nothing"),
+            Node::IsDoNothing(ref node) => format!("is-do-nothing({0})", node),
+            Node::Assign(ref name, ref expr) => format!("{0} = {1}", name, expr),
+            Node::If(ref condition, ref consequence, ref alternative) => format!("if ({0}) {1} else {2}", condition, consequence, alternative),
+            Node::Sequence(ref head, ref more) => format!("{0}; {1}", head, more),
+            Node::While(ref cond, ref body) => format!("while ({0}) {1}", cond, body),
+            Node::Pair(ref fst, ref snd) => format!("pair ({0}, {1})", fst, snd),
+            Node::Fst(ref pair) => format!("fst ({0})", pair),
+            Node::Snd(ref pair) => format!("snd ({0})", pair),
+            Node::Fun(ref fname, ref argname, ref body) => format!("function {0} ({1}) {2}", fname, argname, body),
+            Node::Closure(ref env, ref fun) => format!("closure {0}, env \n{1}{2}",
+                                                       fun.prettyprint(indent+1), prefix, env.prettyprint(indent+1)),
+            Node::Call(ref closure, ref arg) => format!("call {0} arg {1}", closure.prettyprint(indent+1), arg),
+        }
+    }
 }
 
 impl Display for Node {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        match *self {
-            Node::Number(value) => write!(f, "{}", value),
-            Node::Add(ref l, ref r) => write!(f, "{0} + {1}", l, r),
-            Node::Subtract(ref l, ref r) => write!(f, "{0} - {1}", l, r),
-            Node::Multiply(ref l, ref r) => write!(f, "{0} * {1}", l, r),
-            Node::Boolean(value) => write!(f, "{}", value),
-            Node::LT(ref l, ref r) => write!(f, "{0} < {1}", l, r),
-            Node::EQ(ref l, ref r) => write!(f, "{0} = {1}", l, r),
-            Node::GT(ref l, ref r) => write!(f, "{0} > {1}", l, r),
-            Node::Variable(ref name) => write!(f, "{}", name),
-            Node::DoNothing => write!(f, "do-nothing"),
-            Node::IsDoNothing(ref node) => write!(f, "is-do-nothing({0})", node),
-            Node::Assign(ref name, ref expr) => write!(f, "{0} = {1}", name, expr),
-            Node::If(ref condition, ref consequence, ref alternative) => write!(f, "if ({0}) {1} else {2}", condition, consequence, alternative),
-            Node::Sequence(ref head, ref more) => write!(f, "{0}; {1}", head, more),
-            Node::While(ref cond, ref body) => write!(f, "while ({0}) {1}", cond, body),
-            Node::Pair(ref fst, ref snd) => write!(f, "pair ({0}, {1})", fst, snd),
-            Node::Fst(ref pair) => write!(f, "fst ({0})", pair),
-            Node::Snd(ref pair) => write!(f, "snd ({0})", pair),
-            Node::Fun(ref fname, ref argname, ref body) => write!(f, "function {0} ({1}) {2}", fname, argname, body),
-            Node::Closure(ref env, ref fun) => write!(f, "closure {0}, env {1}", fun, env),
-            Node::Call(ref closure, ref arg) => write!(f, "call {0} with {1}", closure, arg),
-        }
+        write!(f, "{}", self.prettyprint(0))
     }
 }
