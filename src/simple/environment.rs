@@ -20,7 +20,7 @@ impl Environment {
         self.vars.insert(name.to_string(), node);
     }
 
-    pub fn get(&mut self, name: &str) -> Box<Node> {
+    pub fn get(&self, name: &str) -> Box<Node> {
         match self.vars.get(name) {
             Some(node) => node.clone(),
             None => panic!("Variable {} not found", name),

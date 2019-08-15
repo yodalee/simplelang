@@ -142,12 +142,16 @@ impl Evaluate for Node {
                 match *clsr {
                     Node::Closure(ref env, ref fun) => {
                         if let Node::Fun(funname, argname, body) = *fun.clone() {
-                            let mut env = env.clone();
-                            env.add(&funname, clsr.clone());
-                            if !argname.is_empty() {
-                                env.add(&argname, arg.clone());
+                            let freevars = get_free_vars(&fun);
+                            let mut newenv = Environment::new();
+                            for var in freevars {
+                                newenv.add(&var, env.get(&var));
                             }
-                            body.evaluate(&mut env)
+                            newenv.add(&funname, clsr.clone());
+                            if !argname.is_empty() {
+                                newenv.add(&argname, arg.clone());
+                            }
+                            body.evaluate(&mut newenv)
                         } else {
                             panic!("Closure not contain function: {}", fun)
                         }
